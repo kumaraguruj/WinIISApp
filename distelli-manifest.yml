@@ -1,0 +1,22 @@
+bmcgehee/WinIISApp:
+  Env:
+    - TEST: "Testing"
+    - PORT: "8006"
+  PkgInclude:
+    - web_content/*
+  PreInstall:
+    - echo "Begin PreInstall"
+    - %windir%\system32\inetsrv\appcmd delete site app1
+    - rmdir /S/Q c:\app1
+    - mkdir c:\app1
+    - %windir%\system32\inetsrv\appcmd add site /name:app1 /id:2 /physicalPath:c:\app1 /bindings:http://*:85
+    - echo "Done PreInstall"
+  PostInstall:
+    - echo "Begin PostInstall"
+    - xcopy /C/E/Q/R/Y web_content\* c:\app1
+    - echo "Done PostInstall"
+  Start:
+    - echo "Begin Start"
+    - %windir%\system32\inetsrv\appcmd start site app1
+    - echo "Done Start"
+
