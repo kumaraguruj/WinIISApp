@@ -1,22 +1,37 @@
 bmcgehee/WinIISApp:
   Env:
-    - TEST: "Testing"
-    - PORT: "8006"
+    - SITE: app1
+    - PORT: 85
   PkgInclude:
     - web_content/*
   PreInstall:
     - echo "Begin PreInstall"
-    - %windir%\system32\inetsrv\appcmd delete site app1
-    - rmdir /S/Q c:\app1
-    - mkdir c:\app1
-    - %windir%\system32\inetsrv\appcmd add site /name:app1 /id:2 /physicalPath:c:\app1 /bindings:http://*:85
+    #- '@echo off '
+    - echo/%%SITE%%=%SITE%
+    - echo "before tokens" 
+    - for /F "tokens=*" %%a in ( 
+    -   "%windir%\system32\inetsrv\appcmd list site %SITE%"
+    - ) do ( 
+    -   set RESPONSE=%%a
+    - ) 
+    - echo/%%RESPONSE%%=%RESPONSE% 
+    - if "%RESPONSE%"=="" (
+    -   echo "%SITE% doesn't exist"
+    - ) else (
+    -   echo "%SITE% does exist. Deleting"
+    -   "%windir%\system32\inetsrv\appcmd delete site %SITE%"
+    - )
+    - echo "end IF"
+    - rmdir /S/Q c:\%SITE%
+    - mkdir c:\%SITE%
+    - "%windir%\system32\inetsrv\appcmd add site /name:%SITE% /id:2 /physicalPath:c:\%SITE% /bindings:http://*:%PORT%"
     - echo "Done PreInstall"
   PostInstall:
     - echo "Begin PostInstall"
-    - xcopy /C/E/Q/R/Y web_content\* c:\app1
+    - xcopy /C/E/Q/R/Y web_content\* c:\%SITE%\
     - echo "Done PostInstall"
   Start:
     - echo "Begin Start"
-    - %windir%\system32\inetsrv\appcmd start site app1
+    - "%windir%\system32\inetsrv\appcmd start site %SITE%"
     - echo "Done Start"
 
